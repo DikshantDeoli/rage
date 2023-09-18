@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geolocation Example</title>
+  </head>
+  <body>
+    <h1>Geolocation Example</h1>
+    <div id="geolocationData"></div>
+
+    <script>
+      // Store the user's permission choice
+      let hasPermission = false;
+
+      // Request permission to access the user's location
+      async function requestLocationPermission() {
+        const permissionStatus = await navigator.permissions.query({
+          name: 'geolocation',
+        });
+
+        if (permissionStatus.state === 'granted') {
+          // The user has given permission to access their location
+          hasPermission = true;
+        } else if (permissionStatus.state === 'prompt') {
+          // The user has not yet chosen whether to give permission to access their location
+
+          // Request permission
+          const permissionResult = await navigator.permissions.request({
+            name: 'geolocation',
+          });
+
+          if (permissionResult === 'granted') {
+            // The user has given permission to access their location
+            hasPermission = true;
+          } else {
+            // The user has denied permission to access their location
+          }
+        } else if (permissionStatus.state === 'denied') {
+          // The user has denied permission to access their location
+        }
+      }
+
+      // Watch the user's location
+      navigator.geolocation.watchPosition((position) => {
+        if (hasPermission) {
+          // Do something with the position data
+          const geolocationDataElement =
+            document.getElementById('geolocationData');
+          const coords = position.coords;
+
+          const formattedData = `
+                <strong>Geolocation Position:</strong><br>
+                <pre>
+                    {
+                        coords: {
+                            accuracy: ${coords.accuracy},
+                            altitude: ${coords.altitude},
+                            altitudeAccuracy: ${coords.altitudeAccuracy},
+                            heading: ${coords.heading},
+                            latitude: ${coords.latitude},
+                            longitude: ${coords.longitude},
+                            speed: ${coords.speed}
+                        },
+                        timestamp: ${position.timestamp}
+                    }
+                </pre>
+            `;
+
+          // Update the HTML element with the formatted data
+          geolocationDataElement.innerHTML = formattedData;
+        }
+      });
+
+      // Request location permission
+      requestLocationPermission();
+    </script>
+  </body>
+</html>
